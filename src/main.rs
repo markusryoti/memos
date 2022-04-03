@@ -51,5 +51,5 @@ fn main() {
     
     let store = memos::PostgresMemoStore::new();
 
-    store.write();
+    store.find();
 }

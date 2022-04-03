@@ -5,10 +5,16 @@ extern crate dotenv;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
+use models::{NewMemo, Memo};
+use schema::memos;
 use std::env;
 
+pub mod schema;
+pub mod models;
+
+
 pub trait MemoStore {
-    fn write(&self);
+    fn write(&self, name: &str, memo_body: &str);
     fn find(&self);
 }
 
@@ -17,13 +23,28 @@ pub struct PostgresMemoStore {
 }
 
 impl MemoStore for PostgresMemoStore{
+    fn write<'a>(&self, name: &'a str, body: &'a str) {
 
-    fn write(&self) {
-        println!("Writing");
+//         let new_memo = NewMemo {
+//             name,
+//             body,
+//         };
+
+//         diesel::insert_into(schema::memos::table)
+//             .values(&new_memo)
+//             .get_result(&self.conn)
+//             .expect("Error saving memo")
     }
 
     fn find(&self) {
+        let results = schema::memos::dsl::memos
+            .load::<Memo>(&self.conn)
+            .expect("Error loading memos");
 
+        println!("Printing all results");
+        for memo in results {
+            println!("{}", memo.name);
+        }
     }
 }
 
