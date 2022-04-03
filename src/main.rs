@@ -1,4 +1,7 @@
-use clap::{Args, Parser, Subcommand};
+use std::io::{stdin, Read};
+
+use clap::{Parser, Subcommand};
+use memos::MemoStore;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -9,34 +12,44 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Methods {
-   Add(MemoAddArgs),
-   Find(MemoFindArgs),
+   Add,
+   Find,
 }
 
-#[derive(Args)]
-struct MemoAddArgs {
-    name: String,
-    url: String,
+fn add_memo() {
+    let mut url = String::new();
+    let mut body = String::new();
+
+    println!("Enter URL for new memo");
+    stdin().read_line(&mut url).unwrap();
+    let url = &url[..url.len() - 1];
+    println!("{}", url);
+
+    println!("Enter body for memo, press {} to finish", EOF);
+    stdin().read_to_string(&mut body).unwrap();
+
+    println!("{}", body);
 }
 
-#[derive(Args)]
-struct MemoFindArgs {
-    name: String,
-}
+#[cfg(not(windows))]
+const EOF: &'static str = "CTRL+D";
 
-fn add_new_memo(new_memo: MemoAddArgs) {
-    println!("{:?}, {:?}", new_memo.name, new_memo.url);
-}
+#[cfg(windows)]
+const EOF: &'static str = "CTRL+Z";
 
-fn find_memo(memo: MemoFindArgs) {
-    println!("{:?}", memo.name);
+fn find_memo() {
+    println!("Searching");
 }
 
 fn main() {
-    let args = Cli::parse();
+    // let args = Cli::parse();
 
-    match args.method {
-        Methods::Add(add_opts) => add_new_memo(add_opts),
-        Methods::Find(find_opts) => find_memo(find_opts),
-    }
+    // match args.method {
+    //     Methods::Add => add_memo(),
+    //     Methods::Find => find_memo(),
+    // }
+    
+    let store = memos::PostgresMemoStore::new();
+
+    store.write();
 }
