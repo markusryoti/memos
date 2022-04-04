@@ -2,41 +2,35 @@
 extern crate diesel;
 extern crate dotenv;
 
+pub mod models;
+pub mod schema;
+
 use diesel::prelude::*;
-use diesel::pg::PgConnection;
 use dotenv::dotenv;
-use models::{NewMemo, Memo};
-use schema::memos;
 use std::env;
 
-pub mod schema;
-pub mod models;
-
+use models::{Memo, NewMemo};
 
 pub trait MemoStore {
-    fn write(&self, name: &str, memo_body: &str);
-    fn find(&self);
+    fn write<'a>(&self, name: &'a str, memo_body: &'a str);
+    fn find_all(&self);
 }
 
 pub struct PostgresMemoStore {
     conn: PgConnection,
 }
 
-impl MemoStore for PostgresMemoStore{
+impl MemoStore for PostgresMemoStore {
     fn write<'a>(&self, name: &'a str, body: &'a str) {
+        let new_memo = NewMemo { name, body };
 
-//         let new_memo = NewMemo {
-//             name,
-//             body,
-//         };
-
-//         diesel::insert_into(schema::memos::table)
-//             .values(&new_memo)
-//             .get_result(&self.conn)
-//             .expect("Error saving memo")
+        diesel::insert_into(schema::memos::table)
+            .values(&new_memo)
+            .get_result::<Memo>(&self.conn)
+            .expect("Error while creating memo");
     }
 
-    fn find(&self) {
+    fn find_all(&self) {
         let results = schema::memos::dsl::memos
             .load::<Memo>(&self.conn)
             .expect("Error loading memos");
@@ -49,16 +43,16 @@ impl MemoStore for PostgresMemoStore{
 }
 
 impl PostgresMemoStore {
-   pub fn new() -> Self {
-       PostgresMemoStore { conn: establish_connection() }
-   }
+    pub fn new() -> Self {
+        PostgresMemoStore {
+            conn: establish_connection(),
+        }
+    }
 }
 
 fn establish_connection() -> PgConnection {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }

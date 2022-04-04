@@ -1,5 +1,3 @@
-use diesel::{Insertable, Queryable};
-
 use super::schema::memos;
 
 #[derive(Queryable)]

@@ -12,8 +12,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Methods {
-   Add,
-   Find,
+    Add,
+    Find,
 }
 
 fn add_memo() {
@@ -48,8 +48,8 @@ fn main() {
     //     Methods::Add => add_memo(),
     //     Methods::Find => find_memo(),
     // }
-    
+
     let store = memos::PostgresMemoStore::new();
 
-    store.find();
+    store.write("first memo", "this is the memo body");
 }
