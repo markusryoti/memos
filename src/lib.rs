@@ -12,7 +12,7 @@ use std::env;
 use models::{Memo, NewMemo};
 
 pub trait MemoStore {
-    fn write<'a>(&self, name: &'a str, memo_body: &'a str);
+    fn write<'a>(&self, name: &'a str, url: &'a str, memo_body: &'a str);
     fn find_all(&self);
 }
 
@@ -21,8 +21,8 @@ pub struct PostgresMemoStore {
 }
 
 impl MemoStore for PostgresMemoStore {
-    fn write<'a>(&self, name: &'a str, body: &'a str) {
-        let new_memo = NewMemo { name, body };
+    fn write<'a>(&self, name: &'a str, url: &'a str, body: &'a str) {
+        let new_memo = NewMemo { name, url, body };
 
         diesel::insert_into(schema::memos::table)
             .values(&new_memo)

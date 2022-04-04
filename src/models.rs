@@ -4,6 +4,7 @@ use super::schema::memos;
 pub struct Memo {
     pub id: i32,
     pub name: String,
+    pub url: String,
     pub body: String,
 }
 
@@ -11,5 +12,6 @@ pub struct Memo {
 #[table_name = "memos"]
 pub struct NewMemo<'a> {
     pub name: &'a str,
+    pub url: &'a str,
     pub body: &'a str,
 }
